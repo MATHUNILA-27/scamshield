@@ -1,0 +1,234 @@
+{
+  "questions": [
+    {
+      "weight": 35,
+      "critical": true,
+      "text": {
+        "en": "Are they asking for money, an OTP, a PIN or card details?",
+        "ta": "அவர்கள் பணம், OTP, PIN அல்லது அட்டை விவரங்களைக் கேட்கிறார்களா?",
+        "hi": "क्या वे पैसे, OTP, PIN या कार्ड की जानकारी माँग रहे हैं?"
+      },
+      "guidance": {
+        "en": [
+          "Hang up. Do not send money or share an OTP, PIN or card details.",
+          "If you already sent money or shared a code, choose “I already paid or shared a code” to open the recovery plan.",
+          "Contact your bank only using a number already saved or the official website."
+        ],
+        "ta": [
+          "அழைப்பைத் துண்டிக்கவும். பணம் அனுப்பவோ OTP, PIN அல்லது அட்டை விவரங்களைப் பகிரவோ வேண்டாம்.",
+          "ஏற்கெனவே பணம் அனுப்பியிருந்தால் அல்லது குறியீட்டைப் பகிர்ந்திருந்தால், மீட்புத் திட்டத்தைத் திறக்க “ஏற்கெனவே பணம் அனுப்பினேன் அல்லது குறியீட்டைப் பகிர்ந்தேன்” என்பதைத் தேர்ந்தெடுக்கவும்.",
+          "ஏற்கெனவே சேமித்த எண்ணிலோ அதிகாரப்பூர்வ இணையதளத்திலோ உள்ள எண்ணில் மட்டும் வங்கியை அழைக்கவும்."
+        ],
+        "hi": [
+          "फ़ोन काट दें। पैसे न भेजें और OTP, PIN या कार्ड की जानकारी न बताएँ।",
+          "अगर पैसे भेजे या कोड बताए हैं, तो योजना खोलने के लिए “मैंने पैसे भेजे या कोड बताया है” चुनें।",
+          "बैंक को केवल पहले से सेव नंबर या आधिकारिक वेबसाइट पर दिए नंबर से कॉल करें।"
+        ]
+      }
+    },
+    {
+      "weight": 30,
+      "critical": true,
+      "text": {
+        "en": "Are they telling you to install an app or share your screen?",
+        "ta": "ஒரு செயலியை நிறுவவோ உங்கள் திரையைப் பகிரவோ சொல்கிறார்களா?",
+        "hi": "क्या वे कोई ऐप लगाने या अपनी स्क्रीन साझा करने को कह रहे हैं?"
+      },
+      "guidance": {
+        "en": [
+          "End the call now. Do not install an app or share your screen.",
+          "If either already happened, choose what happened below to see the steps for that situation."
+        ],
+        "ta": [
+          "அழைப்பைத் துண்டிக்கவும். செயலியை நிறுவவோ திரையைப் பகிரவோ வேண்டாம்.",
+          "ஏற்கெனவே இவற்றில் ஒன்றைச் செய்திருந்தால், அந்த நிலைக்கான வழிகளைப் பார்க்க கீழே நடந்ததைத் தேர்ந்தெடுக்கவும்."
+        ],
+        "hi": [
+          "फ़ोन काट दें। ऐप इंस्टॉल न करें और स्क्रीन साझा न करें।",
+          "अगर इनमें से कुछ हो चुका है, तो उस स्थिति के कदम देखने के लिए नीचे चुनें कि क्या हुआ।"
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "app",
+          "label": {
+            "en": "I installed the app",
+            "ta": "செயலியை நிறுவினேன்",
+            "hi": "मैंने ऐप इंस्टॉल किया"
+          },
+          "steps": {
+            "en": [
+              "End the call. Turn off Wi-Fi and mobile data on that phone.",
+              "Do not open banking or payment apps on that phone. After it is disconnected, remove the app they asked you to install.",
+              "From a different device, contact your bank using a number already saved or from its official website if you opened a banking app or entered details."
+            ],
+            "ta": [
+              "அழைப்பைத் துண்டிக்கவும். அந்தத் தொலைபேசியில் Wi-Fi மற்றும் மொபைல் டேட்டாவை அணைக்கவும்.",
+              "அந்தத் தொலைபேசியில் வங்கி அல்லது பணம் செலுத்தும் செயலிகளைத் திறக்க வேண்டாம். இணையத் தொடர்பைத் துண்டித்த பிறகு, அவர்கள் நிறுவச் சொன்ன செயலியை நீக்கவும்.",
+              "வங்கி செயலியைத் திறந்திருந்தாலோ விவரங்களை உள்ளிட்டிருந்தாலோ, வேறு சாதனத்தில் ஏற்கெனவே சேமித்த அல்லது அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணில் வங்கியைத் தொடர்புகொள்ளவும்."
+            ],
+            "hi": [
+              "फ़ोन काट दें। उस फ़ोन का Wi-Fi और मोबाइल डेटा बंद करें।",
+              "उस फ़ोन पर बैंक या भुगतान ऐप न खोलें। इंटरनेट बंद करने के बाद, उनके कहने पर इंस्टॉल किया ऐप हटाएँ।",
+              "अगर बैंक ऐप खोला या जानकारी डाली थी, तो दूसरे डिवाइस से पहले से सेव या आधिकारिक वेबसाइट पर दिए नंबर पर बैंक से संपर्क करें।"
+            ]
+          }
+        },
+        {
+          "id": "screen",
+          "label": {
+            "en": "I shared my screen",
+            "ta": "என் திரையைப் பகிர்ந்தேன்",
+            "hi": "मैंने अपनी स्क्रीन साझा की"
+          },
+          "steps": {
+            "en": [
+              "End the call and stop screen sharing. Turn off Wi-Fi and mobile data on that phone.",
+              "Do not approve a payment or enter an OTP, PIN or password on that phone.",
+              "If a banking or payment screen was visible, use a different device to contact your bank on a number already saved or from its official website."
+            ],
+            "ta": [
+              "அழைப்பைத் துண்டித்து, திரைப் பகிர்வை நிறுத்தவும். அந்தத் தொலைபேசியில் Wi-Fi மற்றும் மொபைல் டேட்டாவை அணைக்கவும்.",
+              "அந்தத் தொலைபேசியில் பணம் செலுத்த ஒப்புக்கொள்ளவோ OTP, PIN அல்லது கடவுச்சொல்லை உள்ளிடவோ வேண்டாம்.",
+              "வங்கி அல்லது பணம் செலுத்தும் திரை காட்டப்பட்டிருந்தால், வேறு சாதனத்தில் ஏற்கெனவே சேமித்த அல்லது அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணில் வங்கியைத் தொடர்புகொள்ளவும்."
+            ],
+            "hi": [
+              "फ़ोन काटें और स्क्रीन साझा करना बंद करें। उस फ़ोन का Wi-Fi और मोबाइल डेटा बंद करें।",
+              "उस फ़ोन पर भुगतान मंज़ूर न करें और OTP, PIN या पासवर्ड न डालें।",
+              "अगर बैंक या भुगतान की स्क्रीन दिखी थी, तो दूसरे डिवाइस से पहले से सेव या आधिकारिक वेबसाइट पर दिए नंबर पर बैंक से संपर्क करें।"
+            ]
+          }
+        },
+        {
+          "id": "both",
+          "label": {
+            "en": "Both, or I am not sure",
+            "ta": "இரண்டும், அல்லது எனக்குத் தெரியவில்லை",
+            "hi": "दोनों, या मुझे पक्का नहीं"
+          },
+          "steps": {
+            "en": [
+              "End the call. Turn off Wi-Fi and mobile data on that phone and do not use it for banking or payments.",
+              "After it is disconnected, remove the app they asked you to install. Do not approve a payment or share any code.",
+              "Use a different device to contact your bank on a number already saved or from its official website."
+            ],
+            "ta": [
+              "அழைப்பைத் துண்டிக்கவும். அந்தத் தொலைபேசியில் Wi-Fi மற்றும் மொபைல் டேட்டாவை அணைத்து, வங்கி அல்லது பணம் செலுத்த அதைப் பயன்படுத்த வேண்டாம்.",
+              "இணையத் தொடர்பைத் துண்டித்த பிறகு, அவர்கள் நிறுவச் சொன்ன செயலியை நீக்கவும். பணம் செலுத்த ஒப்புக்கொள்ளவோ குறியீட்டைப் பகிரவோ வேண்டாம்.",
+              "வேறு சாதனத்தில் ஏற்கெனவே சேமித்த அல்லது அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணில் வங்கியைத் தொடர்புகொள்ளவும்."
+            ],
+            "hi": [
+              "फ़ोन काट दें। उस फ़ोन का Wi-Fi और मोबाइल डेटा बंद करें और उससे बैंक या भुगतान का काम न करें।",
+              "इंटरनेट बंद करने के बाद, उनके कहने पर इंस्टॉल किया ऐप हटाएँ। भुगतान मंज़ूर न करें और कोई कोड न बताएँ।",
+              "दूसरे डिवाइस से पहले से सेव या आधिकारिक वेबसाइट पर दिए नंबर पर बैंक से संपर्क करें।"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "weight": 25,
+      "critical": true,
+      "text": {
+        "en": "Are they telling you to stay on the line, not hang up, or keep it secret?",
+        "ta": "அழைப்பைத் துண்டிக்காமல் இருக்கவோ, ரகசியமாக வைக்கவோ சொல்கிறார்களா?",
+        "hi": "क्या वे फोन न काटने या बात को गुप्त रखने को कह रहे हैं?"
+      },
+      "guidance": {
+        "en": [
+          "You do not have to stay on the line or keep the call secret. Hang up.",
+          "Call a family member or someone you trust using a number already saved.",
+          "Decide what to do together; do not follow instructions from the caller."
+        ],
+        "ta": [
+          "அழைப்பில் இருக்கவோ, இதை ரகசியமாக வைக்கவோ வேண்டியதில்லை. அழைப்பைத் துண்டிக்கவும்.",
+          "ஏற்கெனவே சேமித்த எண்ணில் குடும்பத்தினரையோ நம்பும் ஒருவரையோ அழைக்கவும்.",
+          "அவர்களுடன் சேர்ந்து முடிவு செய்யுங்கள்; அழைத்தவர் சொல்வதைச் செய்ய வேண்டாம்."
+        ],
+        "hi": [
+          "आपको कॉल पर बने रहने या इसे गुप्त रखने की ज़रूरत नहीं है। फ़ोन काट दें।",
+          "पहले से सेव नंबर पर परिवार या किसी भरोसेमंद व्यक्ति को कॉल करें।",
+          "उनके साथ मिलकर तय करें; कॉल करने वाले की बात पर काम न करें।"
+        ]
+      }
+    },
+    {
+      "weight": 15,
+      "critical": false,
+      "text": {
+        "en": "Do they say they are police, a bank, customs, a court or a government officer?",
+        "ta": "தாங்கள் காவல்துறை, வங்கி, சுங்கத்துறை, நீதிமன்றம் அல்லது அரசு அதிகாரி என்று சொல்கிறார்களா?",
+        "hi": "क्या वे खुद को पुलिस, बैंक, सीमा शुल्क, अदालत या सरकारी अधिकारी बता रहे हैं?"
+      },
+      "guidance": {
+        "en": [
+          "Do not rely on the caller's claimed role. End the call.",
+          "Contact the organisation using a number already saved or listed on its official website.",
+          "Do not call a number supplied by the caller."
+        ],
+        "ta": [
+          "அவர் சொல்வது உண்மை என்று மட்டும் நம்பாதீர்கள். அழைப்பைத் துண்டிக்கவும்.",
+          "ஏற்கெனவே சேமித்த எண்ணிலோ அந்த நிறுவனத்தின் அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணிலோ தொடர்புகொள்ளுங்கள்.",
+          "அழைத்தவர் கொடுத்த எண்ணை அழைக்க வேண்டாம்."
+        ],
+        "hi": [
+          "कॉल करने वाले के बताए पद पर भरोसा न करें। फ़ोन काट दें।",
+          "पहले से सेव नंबर या संस्था की आधिकारिक वेबसाइट पर दिए नंबर से संपर्क करें।",
+          "कॉल करने वाले के दिए नंबर पर कॉल न करें।"
+        ]
+      }
+    },
+    {
+      "weight": 20,
+      "critical": false,
+      "text": {
+        "en": "Are they pressuring you to act within minutes, or threatening arrest or a blocked account?",
+        "ta": "சில நிமிடங்களில் செய்யச் சொல்லி அழுத்தம் தருகிறார்களா, அல்லது கைது அல்லது கணக்கு முடக்கம் என்று மிரட்டுகிறார்களா?",
+        "hi": "क्या वे कुछ मिनटों में करने का दबाव डालते हैं या गिरफ्तारी अथवा खाता बंद करने की धमकी देते हैं?"
+      },
+      "guidance": {
+        "en": [
+          "Pause. Do not act because of pressure or a threat. End the call.",
+          "Ask a family member or someone you trust to help you think it through.",
+          "If they claim there is a bank account problem, call your bank using a saved or official number."
+        ],
+        "ta": [
+          "நிதானியுங்கள். அழுத்தம் அல்லது மிரட்டலால் எதையும் செய்ய வேண்டாம். அழைப்பைத் துண்டிக்கவும்.",
+          "யோசிக்க குடும்பத்தினரிடமோ நம்பும் ஒருவரிடமோ உதவி கேளுங்கள்.",
+          "வங்கிக் கணக்கில் பிரச்சினை என்று சொன்னால், சேமித்த அல்லது அதிகாரப்பூர்வ எண்ணில் வங்கியை அழைக்கவும்."
+        ],
+        "hi": [
+          "रुकें। दबाव या धमकी के कारण कुछ न करें। फ़ोन काट दें।",
+          "सोचने के लिए परिवार या किसी भरोसेमंद व्यक्ति से मदद लें।",
+          "बैंक खाते की समस्या बताएँ, तो सेव या आधिकारिक नंबर पर बैंक को कॉल करें।"
+        ]
+      }
+    },
+    {
+      "weight": 10,
+      "critical": false,
+      "text": {
+        "en": "Did they call you first, without you asking?",
+        "ta": "நீங்கள் கேட்காமல் அவர்களே முதலில் அழைத்தார்களா?",
+        "hi": "क्या आपने नहीं कहा था, फिर भी उन्होंने पहले फोन किया?"
+      },
+      "guidance": {
+        "en": [
+          "An unexpected call alone does not confirm who is calling. Do not share personal or account details.",
+          "End the call if you are unsure or feel pressured.",
+          "Contact the person or organisation using a number already saved or on its official website."
+        ],
+        "ta": [
+          "எதிர்பாராத அழைப்பு வந்தது என்பதால் மட்டும் யார் அழைக்கிறார்கள் என்று உறுதியாகாது. தனிப்பட்ட அல்லது கணக்கு விவரங்களைப் பகிர வேண்டாம்.",
+          "தெரியவில்லை என்றாலோ அழுத்தம் இருந்தாலோ அழைப்பைத் துண்டிக்கவும்.",
+          "ஏற்கெனவே சேமித்த எண்ணிலோ அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணிலோ அந்த நபரையோ நிறுவனத்தையோ தொடர்புகொள்ளுங்கள்."
+        ],
+        "hi": [
+          "अचानक कॉल आने से यह पक्का नहीं होता कि कौन बोल रहा है। निजी या खाते की जानकारी न बताएँ।",
+          "समझ न आए या दबाव लगे, तो फ़ोन काट दें।",
+          "उस व्यक्ति या संस्था से पहले से सेव या आधिकारिक वेबसाइट पर दिए नंबर से संपर्क करें।"
+        ]
+      }
+    }
+  ]
+}

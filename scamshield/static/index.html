@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScamShield</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Noto+Sans:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f6;--ink:#14232e;--mute:#53656f;--card:#fff;--line:#cfd9e0;--teal:#0f4c5c;--safe:#2e7d5b;--warn:#b87503;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 "Noto Sans","Noto Sans Tamil","Noto Sans Devanagari",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:28px 20px 64px}
+h1{font:800 clamp(28px,6vw,42px)/1.15 "Bricolage Grotesque","Noto Sans Tamil","Noto Sans Devanagari",sans-serif;margin:0 0 8px}
+h2{font:800 24px/1.2 "Bricolage Grotesque","Noto Sans Tamil","Noto Sans Devanagari",sans-serif;margin:0 0 6px}
+h3{font-size:19px;margin:0 0 6px}
+.mute{color:var(--mute)}
+textarea{width:100%;min-height:140px;padding:14px;font:inherit;border:2px solid var(--line);border-radius:10px;background:var(--card)}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button,select{font:inherit;padding:10px 16px;border-radius:8px;border:2px solid var(--teal);background:#fff;color:var(--teal);cursor:pointer}
+button.go{background:var(--teal);color:#fff;font-weight:600}
+button:disabled{opacity:.6;cursor:wait}
+.ex button{font-size:15px;padding:5px 11px;border-color:var(--line);color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:24px}
+.head{padding:20px 24px;color:#fff}.head p{margin:2px 0 0}
+.likely_scam{background:var(--bad)}.suspicious{background:var(--warn)}.no_signs_found{background:var(--safe)}
+.bar{height:8px;background:rgba(255,255,255,.35);margin-top:12px;border-radius:4px}.bar i{display:block;height:100%;background:#fff;border-radius:4px}
+section{padding:16px 24px;border-top:1px solid var(--line)}
+ul{margin:0;padding-left:22px}li{margin:4px 0}
+.chip{display:inline-block;background:#e3edf1;border-radius:99px;padding:2px 12px;margin:3px 6px 3px 0;font-size:16px}
+.link{border-left:4px solid var(--line);padding:2px 12px;margin:8px 0;word-break:break-all}.link.flag{border-color:var(--bad)}
+.highlighted{background:#fff0a8;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px}
+.highlighted.url{background:#dcecff;text-decoration-style:dashed}
+.highlight-text{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line);border-radius:8px;padding:12px;background:#f8fafb}
+.legend{display:flex;gap:8px;flex-wrap:wrap}
+.note{background:#fff4d6;border:1px solid #e8c766;border-radius:8px;padding:8px 12px;margin:12px 0;font-size:16px}
+.tip{border-left:6px solid var(--teal);background:#e3edf1;padding:12px 16px;border-radius:8px;margin:12px 0}
+.call-open{font-size:1.15em;padding:14px 20px}
+.prepay-shell{margin-top:12px;padding:20px 24px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.prepay-btn{display:block;width:100%;font-size:1.2em;padding:18px 20px;margin-bottom:12px}
+.prepay-progress{height:12px;border-radius:999px;background:#dfe7ed;overflow:hidden}
+.prepay-progress i{display:block;height:100%;background:var(--teal);transition:width .2s}
+.prepay-question{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:700;line-height:1.3;min-height:3.5em;margin:14px 0}
+.prepay-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.prepay-row button{flex:1 1 180px;font-size:1.3em;padding:18px 20px;min-height:68px}
+.prepay-alert{position:fixed;inset:0;background:#101820;color:#fff;z-index:20;padding:clamp(20px,6vw,50px);display:flex;align-items:center;justify-content:center}
+.prepay-alert-inner{width:min(760px,100%);background:#101820;border:2px solid #fff;border-radius:18px;padding:clamp(16px,3vw,30px)}
+.prepay-alert h2{font-size:clamp(2.2rem,7vw,4rem);margin:0 0 16px;color:#ffe05c}
+.prepay-alert ul{padding-left:20px}.prepay-alert li{margin:10px 0}
+.prepay-note{margin-top:12px;padding:12px 14px;border-radius:10px;background:#e3edf1;color:#1a2d36}
+.prepay-timer{font-size:1.8em;font-weight:700}
+body.easy-read{font-size:1.08rem}body.easy-read main{max-width:900px}body.easy-read button,body.easy-read select,body.easy-read textarea,body.easy-read input{font-size:1.06rem}
+.call-question{font-size:1.25em;font-weight:600;min-height:3em}
+#callChoices{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.call-answer{font-size:1.25em;min-width:120px;padding:16px 24px;flex:1 1 180px;margin:0}
+.call-meter{height:18px;background:#d5dde1;border-radius:9px;overflow:hidden}
+.call-meter i{display:block;height:100%;width:0;background:#bf5200;transition:width .2s}
+.call-alert .call-meter{background:#53616a}
+.call-alert .call-meter i{background:#ffe05c}
+.call-alert{position:fixed;inset:0;z-index:10;overflow:auto;background:#101820;color:#fff;padding:clamp(24px,7vw,72px);display:flex;flex-direction:column;justify-content:center}
+.call-alert h2{font-size:clamp(36px,9vw,64px);color:#ffe05c}
+.call-alert li{margin:14px 0;font-size:1.15em}
+.call-alert .script{font-size:1.3em;font-weight:600;border:2px solid #ffe05c;padding:14px;border-radius:8px}
+.call-alert button{font-weight:700}
+.call-alert button.go{background:#ffe05c;color:#101820;border-color:#ffe05c}
+.call-alert button:not(.go){background:#fff;color:#101820;border-color:#fff}
+.contact-form{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.contact-form summary{cursor:pointer;color:var(--teal);font-weight:700}
+.contact-form summary h3{display:inline}
+.contact-intro{margin:8px 0}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.contact-grid label{display:block;font-size:16px}
+.contact-grid input{display:block;width:100%;padding:9px;border:2px solid var(--line);border-radius:8px;font:inherit}
+.contact-actions a,.contact-actions button{display:inline-block;font-size:1.15em;font-weight:700;padding:14px 20px;text-decoration:none}
+.contact-actions a{background:var(--teal);border:2px solid var(--teal);border-radius:8px;color:white}
+.contact-actions{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:10px 0 16px}
+.contact-actions a,.contact-actions button{max-width:100%;white-space:normal}
+.contact-status{min-height:1.6em}
+.score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.score-grid>div{border:1px solid var(--line);border-radius:8px;padding:10px}
+.score-grid strong{display:block;font-size:1.3em}
+.pause-clock{font-size:1.6em;font-weight:700;font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:560px){.contact-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.score-grid{grid-template-columns:1fr}}
+label.q{display:block;padding:6px 0}label.q input{width:22px;height:22px;vertical-align:middle;margin-right:8px}
+.g{border-left:6px solid var(--teal);padding:2px 14px;margin:14px 0}.g.now{border-color:var(--bad)}
+.hide{display:none}
+</style></head><body><main>
+<div class="row" style="justify-content:flex-end"><label for="lang" class="mute">Language</label>
+<select id="lang"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option></select></div>
+<div id="unrev" class="note hide" data-t="unrev"></div>
+<h1 data-t="title"></h1><p class="mute" data-t="sub"></p>
+<div class="row"><button class="go call-open" id="openCall" data-t="callOpen"></button></div>
+<div class="prepay-shell" id="prepayWrap">
+ <button class="go prepay-btn" id="prepayOpen" data-t="prepayOpen"></button>
+ <div id="prepayPanel" class="hide">
+  <p id="prepayProgressText" class="mute"></p>
+  <div class="prepay-progress" aria-label="Pre-pay check progress"><i id="prepayProgressBar" style="width:0%"></i></div>
+  <p id="prepayQuestion" class="prepay-question" tabindex="-1"></p>
+  <div class="prepay-row"><button class="go" id="prepayYes" data-t="prepayYes"></button><button id="prepayNo" data-t="prepayNo"></button></div>
+ </div>
+ <div id="prepayAlert" class="prepay-alert hide" role="alertdialog" aria-modal="true" aria-labelledby="prepayAlertTitle">
+  <div class="prepay-alert-inner">
+   <h2 id="prepayAlertTitle" data-t="prepayStop"></h2>
+   <p id="prepayRiskText" class="mute"></p>
+   <ul id="prepayReasons"></ul>
+   <ol>
+    <li data-t="prepayStepWait"></li>
+    <li data-t="prepayStepCall"></li>
+    <li data-t="prepayStepAsk"></li>
+   </ol>
+   <p class="prepay-note" data-t="prepayNote"></p>
+   <p id="prepayTimerText" class="prepay-timer" aria-live="polite"></p>
+   <div class="prepay-row"><button class="go" id="prepayFamily" data-t="prepayFamily"></button><button id="prepayPaid" data-t="prepayPaid"></button><button id="prepayShield" class="hide" data-t="prepayShield"></button></div>
+  </div>
+ </div>
+ <div id="prepayCalm" class="hide">
+  <h3 data-t="prepayCalmTitle"></h3>
+  <p data-t="prepayCalmText"></p>
+ </div>
+</div>
+<div class="card hide" id="callPage" aria-live="polite" style="padding:20px 24px">
+ <div class="row" style="justify-content:space-between"><h2 data-t="callTitle"></h2><button id="callBack" data-t="callBack"></button></div>
+ <p id="callUnrev" class="note hide" data-t="unrev"></p>
+ <p class="mute" data-t="callLimit"></p>
+ <p class="mute" data-t="callPrivacy"></p>
+ <div class="tip"><strong data-t="tipTitle"></strong><div data-t="tipBody"></div></div>
+ <div id="callQuiz">
+  <p id="callProgress" class="mute"></p>
+  <p id="callQuestion" class="call-question" tabindex="-1"></p>
+  <div class="call-meter" id="callProgressbar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="callMeter"></i></div>
+  <p id="callRisk" class="mute"></p>
+  <div id="callChoices" class="row"><button class="go call-answer" id="callYes"></button><button class="call-answer" id="callNo"></button><button class="call-answer" id="callOther"></button></div>
+  <div id="callOtherForm" class="hide">
+   <label for="callOtherText" data-t="callOtherLabel"></label>
+   <textarea id="callOtherText" maxlength="300"></textarea>
+   <p class="mute" data-t="callOtherPrivacy"></p><p class="note" data-t="callOtherGuidance"></p>
+   <div class="row"><button class="go" id="callOtherContinue" data-t="callOtherContinue"></button><button id="callOtherBack" data-t="callOtherBack"></button></div>
+  </div>
+  <div id="callOtherResponse" class="hide" aria-live="polite" tabindex="-1">
+   <h3 data-t="callOtherResponseTitle"></h3>
+   <p id="callOtherNote" class="highlight-text"></p>
+   <p data-t="callOtherResponseLimit"></p>
+   <ul id="callOtherSteps"></ul>
+   <div id="callOtherScenarioWrap" class="hide">
+    <p data-t="callScenarioPrompt"></p>
+    <div id="callOtherScenarioChoices" class="row"></div>
+    <ol id="callOtherScenarioSteps"></ol>
+   </div>
+   <button class="go" id="callOtherNext" data-t="callOtherNext"></button>
+  </div>
+  <div id="callAdvice"></div>
+ </div>
+ <div id="callCalm" class="hide">
+  <h3 data-t="callCalm"></h3><p data-t="callVerify"></p><div id="callCalmAdvice"></div>
+  <div class="row"><button class="go" id="callAgain" data-t="callAgain"></button></div>
+ </div>
+</div>
+
+<label for="t" data-t="label" class="mute"></label>
+<textarea id="t"></textarea>
+<p class="mute" style="font-size:16px;margin:4px 0" data-t="digits"></p>
+<div class="row"><button class="go" id="go"></button></div>
+<div class="row ex"><span class="mute" data-t="ex"></span><span id="exb"></span></div>
+
+<div class="card hide" id="out" aria-live="polite">
+ <div class="head" id="head"><h2 id="v"></h2><p id="st"></p><div class="bar"><i id="b"></i></div></div>
+ <section><h3 data-t="scorePanelTitle"></h3><div class="score-grid">
+  <div><span data-t="ruleScoreLabel"></span><strong id="ruleScore"></strong></div>
+  <div><span data-t="aiScoreLabel"></span><strong id="aiScore"></strong></div>
+  <div><span data-t="finalScoreLabel"></span><strong id="finalScore"></strong></div>
+ </div><p id="scoreReason"></p></section>
+ <section id="pausePanel" class="hide" aria-labelledby="pauseTitle">
+  <h3 id="pauseTitle" data-t="pauseTitle"></h3><p data-t="pauseText"></p>
+  <p id="pauseClock" class="pause-clock" aria-hidden="true"></p><p id="pauseStatus" class="sr-only" role="status" aria-live="polite"></p>
+  <div class="row"><button class="go" id="pauseSkip" data-t="pauseSkip"></button><button id="pauseFamily" data-t="pauseFamily"></button></div>
+ </section>
+ <section><h3 data-t="highlightTitle"></h3><p id="highlight" class="highlight-text"></p><p id="highlightTip" class="mute" aria-live="polite"></p><p id="noSpanNote" class="mute hide"></p><div id="legend" class="legend"></div></section>
+ <section><h3 data-t="why"></h3><ul id="why"></ul><div id="tac"></div></section>
+ <section id="lk"><h3 data-t="links"></h3><div id="links"></div></section>
+ <section><h3 data-t="todo"></h3><ul id="todo"></ul></section>
+ <section><div id="aiNote" class="mute" style="font-size:16px"></div><div class="row"><button id="warn"></button></div></section>
+</div>
+
+<div class="card" style="padding:20px 24px">
+ <h2 data-t="rh"></h2><p class="mute" data-t="rsub"></p>
+ <label class="q"><input type="checkbox" value="money"><span data-t="q1"></span></label>
+ <label class="q"><input type="checkbox" value="creds"><span data-t="q2"></span></label>
+ <label class="q"><input type="checkbox" value="link"><span data-t="q3"></span></label>
+ <label class="q"><input type="checkbox" id="hour"><span data-t="q4"></span></label>
+ <p class="mute contact-intro" data-t="contactsIntro"></p>
+ <details class="contact-form" id="contactForm">
+  <summary><h3 data-t="contactsSummary"></h3></summary>
+  <p class="mute" data-t="contactsPrivacy"></p>
+  <div class="contact-grid">
+   <label><span data-t="bankName"></span><input id="bankName" maxlength="80" autocomplete="organization"></label>
+   <label><span data-t="bankPhone"></span><input id="bankPhone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel"></label>
+   <label><span data-t="familyName"></span><input id="familyName" maxlength="80" autocomplete="name"></label>
+   <label><span data-t="familyPhone"></span><input id="familyPhone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel"></label>
+  </div>
+  <p id="contactStatus" class="contact-status mute" role="status" aria-live="polite"></p>
+  <div class="row"><button class="go" id="saveContacts" data-t="saveContacts"></button><button id="clearContacts" data-t="clearContacts"></button></div>
+ </details>
+ <div class="row"><button class="go" id="mk" data-t="plan"></button></div>
+ <div id="plan" class="hide" aria-live="polite">
+  <p><strong data-t="reassure"></strong></p><div id="contactActions" class="contact-actions"></div><div id="groups"></div>
+  <h3 data-t="notes"></h3><p class="mute" style="font-size:16px" data-t="notesh"></p>
+  <textarea id="notes" style="min-height:260px"></textarea>
+  <div class="row"><button id="cp"></button></div>
+  <p class="mute" style="font-size:15px"><span data-t="disc"></span><span id="gd"></span></p>
+ </div>
+</div>
+</main>
+<div id="callAlert" class="call-alert hide" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle">
+ <h2 id="alertTitle" data-t="hangup"></h2>
+ <p id="alertRiskText"></p><div class="call-meter" id="alertRiskBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="alertRiskMeter"></i></div>
+ <div id="callAlertAdvice" tabindex="-1" aria-live="polite"></div>
+ <ol id="callCommonSteps"><li data-t="stepHangup"></li><li data-t="stepCallback"></li><li data-t="stepCode"></li></ol>
+ <p id="callScript" class="script" data-t="callScript"></p>
+ <p data-t="reassure"></p>
+ <div class="row"><button class="go" id="paid" data-t="callPaid"></button><button id="callWarn" data-t="callWarn"></button></div>
+</div>
+<script>
+const T={
+en:{title:"Got a strange message? Check it first.",sub:"Paste an SMS, email or WhatsApp message. You get a verdict, the reasons and what to do next.",label:"Message to check",check:"Check message",checking:"Checking...",ex:"Try an example:",lv:"Likely a scam",vs:"Suspicious, be careful",vn:"No scam signs found. Still verify with the official source.",risk:"Risk",why:"Why",links:"Links found",todo:"What to do now",aioff:"AI is off. Checks for Tamil and Hindi messages are weaker.",aion:"Checked with AI and rules.",digits:"Never paste a live OTP. Long numbers are hidden before the AI sees them.",rh:"Already clicked, shared a code or paid?",rsub:"Tick what happened to get a step-by-step plan.",q1:"I sent money",q2:"I shared an OTP, PIN or card details",q3:"I clicked a link or installed an app",q4:"This happened in the last hour",plan:"Show my plan",gn:"Right now (first 10 minutes)",gnu:"Right now: every minute counts",gt:"Today",gr:"Report and keep evidence",reassure:"This is not your fault. You can ask a family member to help you make these calls.",disc:"General guidance, not legal or financial advice. Guidance last checked: ",notes:"Complaint notes (stay in your browser)",notesh:"Use this to help you fill in the official form at cybercrime.gov.in.",copy:"Copy",copied:"Copied",warn:"Copy warning for family",unrev:"Tamil and Hindi wording: not yet reviewed by a native speaker.",err:"Could not check the message. Make sure the server is running.",pick:"Tick at least one box.",f:["Name","Mobile","Nearest police station","District","Bank","Amount","Account or UPI ID","Transaction IDs","Scammer's number or link","Date and time"],what:"What happened",wm:'Scam alert! I got this message: "{m}". It is a scam. Do not click anything and never share an OTP. If money is lost, call 1930.',e:["Bank KYC","Family emergency","Parcel fee","Real OTP","Tamil","Hindi"]},
+ta:{title:"விசித்திரமான செய்தி வந்ததா? முதலில் சரிபாருங்கள்.",sub:"SMS, மின்னஞ்சல் அல்லது WhatsApp செய்தியை ஒட்டவும். முடிவு, காரணங்கள், அடுத்து செய்ய வேண்டியவை கிடைக்கும்.",label:"சரிபார்க்க வேண்டிய செய்தி",check:"செய்தியை சரிபார்",checking:"சரிபார்க்கிறது...",ex:"உதாரணங்கள்:",lv:"மோசடி போலத் தெரிகிறது",vs:"சந்தேகத்திற்குரியது, கவனம்",vn:"மோசடி அறிகுறி இல்லை. இருந்தாலும் அதிகாரப்பூர்வ வழியில் உறுதி செய்யவும்.",risk:"ஆபத்து",why:"ஏன்",links:"இணைப்புகள்",todo:"இப்போது செய்ய வேண்டியவை",aioff:"AI அணைந்துள்ளது. தமிழ், ஹிந்தி செய்திகளுக்கான சோதனை பலவீனமாக இருக்கும்.",aion:"AI மற்றும் விதிகளால் சரிபார்க்கப்பட்டது.",digits:"உண்மையான OTP ஐ ஒட்ட வேண்டாம். நீண்ட எண்கள் AI பார்க்கும் முன் மறைக்கப்படும்.",rh:"இணைப்பைத் திறந்தீர்களா, குறியீடு பகிர்ந்தீர்களா, பணம் அனுப்பினீர்களா?",rsub:"நடந்ததைத் தேர்ந்தெடுத்தால் படிப்படியான திட்டம் கிடைக்கும்.",q1:"பணம் அனுப்பினேன்",q2:"OTP, PIN அல்லது அட்டை விவரங்களை பகிர்ந்தேன்",q3:"இணைப்பைத் திறந்தேன் அல்லது செயலியை நிறுவினேன்",q4:"இது கடந்த ஒரு மணி நேரத்தில் நடந்தது",plan:"என் திட்டத்தைக் காட்டு",gn:"இப்போதே (முதல் 10 நிமிடம்)",gnu:"இப்போதே: ஒவ்வொரு நிமிடமும் முக்கியம்",gt:"இன்றே",gr:"புகார் செய்து ஆதாரங்களை வைத்திருங்கள்",reassure:"இது உங்கள் தவறு அல்ல. இந்த அழைப்புகளைச் செய்ய குடும்ப உறுப்பினரிடம் உதவி கேட்கலாம்.",disc:"பொதுவான வழிகாட்டுதல் மட்டுமே; சட்ட அல்லது நிதி ஆலோசனை அல்ல. கடைசியாகச் சரிபார்த்த தேதி: ",notes:"புகார் குறிப்புகள் (உங்கள் உலாவியிலேயே இருக்கும்)",notesh:"cybercrime.gov.in அதிகாரப்பூர்வ படிவத்தை நிரப்ப இதைப் பயன்படுத்தவும்.",copy:"நகலெடு",copied:"நகலெடுக்கப்பட்டது",warn:"குடும்பத்திற்கு எச்சரிக்கை நகலெடு",unrev:"தமிழ், ஹிந்தி வார்த்தைகளை தாய்மொழி பேசுபவர் இன்னும் சரிபார்க்கவில்லை.",err:"செய்தியைச் சரிபார்க்க முடியவில்லை. சர்வர் இயங்குகிறதா எனப் பாருங்கள்.",pick:"குறைந்தது ஒன்றைத் தேர்ந்தெடுக்கவும்.",f:["பெயர்","மொபைல்","அருகிலுள்ள காவல் நிலையம்","மாவட்டம்","வங்கி","தொகை","கணக்கு அல்லது UPI ஐடி","பரிவர்த்தனை எண்கள்","மோசடிக்காரரின் எண் அல்லது இணைப்பு","தேதி, நேரம்"],what:"என்ன நடந்தது",wm:'மோசடி எச்சரிக்கை! எனக்கு இந்தச் செய்தி வந்தது: "{m}". இது மோசடி. எதையும் திறக்காதீர்கள், OTP பகிராதீர்கள். பணம் போனால் 1930 ஐ அழைக்கவும்.',e:["வங்கி KYC","குடும்ப அவசரம்","பார்சல் கட்டணம்","உண்மையான OTP","தமிழ்","ஹிந்தி"]},
+hi:{title:"अजीब संदेश आया? पहले यहाँ जाँचें।",sub:"SMS, ईमेल या WhatsApp संदेश यहाँ चिपकाएँ। आपको नतीजा, कारण और आगे क्या करना है, मिलेगा।",label:"जाँचने वाला संदेश",check:"संदेश जाँचें",checking:"जाँच हो रही है...",ex:"उदाहरण:",lv:"ठगी लगती है",vs:"संदिग्ध, सावधान रहें",vn:"ठगी के संकेत नहीं मिले। फिर भी आधिकारिक स्रोत से पुष्टि करें।",risk:"जोखिम",why:"क्यों",links:"मिले लिंक",todo:"अभी क्या करें",aioff:"AI बंद है। तमिल और हिंदी संदेशों की जाँच कमज़ोर है।",aion:"AI और नियमों से जाँचा गया।",digits:"असली OTP कभी न चिपकाएँ। लंबे नंबर AI को दिखने से पहले छिपा दिए जाते हैं।",rh:"क्लिक किया, कोड बताया या पैसे भेजे?",rsub:"जो हुआ उसे चुनें, कदम-दर-कदम योजना मिलेगी।",q1:"मैंने पैसे भेजे",q2:"मैंने OTP, PIN या कार्ड की जानकारी बताई",q3:"मैंने लिंक खोला या ऐप इंस्टॉल किया",q4:"यह पिछले एक घंटे में हुआ",plan:"मेरी योजना दिखाएँ",gn:"अभी (पहले 10 मिनट)",gnu:"अभी: हर मिनट कीमती है",gt:"आज",gr:"शिकायत करें और सबूत रखें",reassure:"यह आपकी गलती नहीं है। ये कॉल करने में आप परिवार के किसी सदस्य की मदद ले सकते हैं।",disc:"यह सामान्य मार्गदर्शन है, कानूनी या वित्तीय सलाह नहीं। मार्गदर्शन की आखिरी जाँच: ",notes:"शिकायत के नोट्स (आपके ब्राउज़र में ही रहते हैं)",notesh:"cybercrime.gov.in का आधिकारिक फ़ॉर्म भरने में इसकी मदद लें।",copy:"कॉपी करें",copied:"कॉपी हो गया",warn:"परिवार के लिए चेतावनी कॉपी करें",unrev:"तमिल और हिंदी शब्दों की जाँच किसी मूल भाषी ने अभी नहीं की है।",err:"संदेश जाँचा नहीं जा सका। देखें कि सर्वर चल रहा है।",pick:"कम से कम एक विकल्प चुनें।",f:["नाम","मोबाइल","नज़दीकी थाना","ज़िला","बैंक","राशि","खाता या UPI आईडी","ट्रांज़ैक्शन नंबर","ठग का नंबर या लिंक","तारीख और समय"],what:"क्या हुआ",wm:'ठगी से सावधान! मुझे यह संदेश मिला: "{m}"। यह ठगी है। कुछ भी न खोलें और OTP कभी न बताएँ। पैसे चले जाएँ तो 1930 पर कॉल करें।',e:["बैंक KYC","परिवार में आपात","पार्सल शुल्क","असली OTP","तमिल","हिंदी"]}};
+Object.assign(T.en,{
+ prepayOpen:"About to pay someone? Check first.",prepayYes:"Yes",prepayNo:"No",prepayStop:"Stop. Do not pay yet.",prepayCalmTitle:"These questions found no warning signs.",prepayCalmText:"Only pay people you know, and only after checking the name in your payment app.",prepayFamily:"Copy warning for family",prepayPaid:"I already paid",prepayShield:"Call Shield",prepayNote:"This checks the situation, not the person. It cannot tell whether a payee is trustworthy.",prepayStepWait:"Wait. Do not pay now.",prepayStepCall:"Call the person or company back on a number you already have saved or on the official website, never on a number they gave you.",prepayStepAsk:"Ask a family member before you decide.",prepayWarning:"Payment warning: I was asked to pay quickly. I am not paying yet. I will call back on a number I already have saved or on the official website. I will ask a family member before I decide.",prepayAlert:"These answers are warning signs:",callOpen:"On a suspicious call right now?",callTitle:"Call Shield",callBack:"Close Call Shield",callLimit:"Call Shield checks the situation, not the voice. We do not claim to detect cloned voices; the callback and family code-word habits work even when the voice sounds real.",callPrivacy:"We do not listen to or record calls or use your microphone. No call data is sent anywhere.",
+ tipTitle:"Family code word",tipBody:"Agree on a secret word with relatives. Ask for it if someone urgently asks for money. Ask something only the real person knows that is not posted online.",
+ callProgress:"Question {n} of {total}",callYes:"Yes",callNo:"No",callRisk:"Risk points",callCalm:"Fewer warning signs.",callVerify:"Still verify before you act. Call back on a number you already have.",
+ callOther:"Other",callOtherLabel:"Briefly describe what is happening. Do not include any codes, PINs, passwords or account details.",callOtherPrivacy:"This note stays on this page. It is not sent or saved.",
+ callOtherGuidance:"If unsure, end the call. Do not send money or share a code. Ask someone you trust and call back using a number already saved or from the official website.",
+ callOtherContinue:"Show guidance",callOtherBack:"Back to answers",callYourNote:"Your note",
+ callOtherResponseTitle:"Guidance for this question",callOtherResponseLimit:"Your note is not automatically analyzed. These fixed steps relate to the question you chose; they are not an assessment of the details you wrote.",callOtherNext:"Continue questions",callScenarioPrompt:"If one of these happened, choose it for more specific steps:",
+ callAgain:"Start again",hangup:"Hang up now.",stepHangup:"Hang up.",stepCallback:"Call back only on a number you already have saved or on the official website. Never call the number they gave you.",
+ stepCode:"Do not send money or share a code.",callScript:"I will call you back on the official number.",callPaid:"I already paid or shared a code",callWarn:"Copy warning for family",
+ callWarning:"Scam call warning: someone called asking for money or codes. Hang up and call back on a saved number. Never share an OTP. If money is lost, call 1930.",
+ callError:"Could not load Call Shield. Make sure the server is running.",highlightTitle:"Your message with rule matches",legend:"Rule matches found",linkLabel:"Link",
+ contactsTitle:"My emergency contacts",contactsSummary:"Prepare one-tap emergency calls (optional)",contactsIntro:"Add your bank and family numbers once; call buttons will appear in your recovery plan. Saved only in this browser.",contactsPrivacy:"Saved only on this device. We never receive it.",
+ bankName:"Bank name",bankPhone:"Bank's official helpline number (from your card)",familyName:"Family contact name",familyPhone:"Family contact number",
+ saveContacts:"Save",clearContacts:"Clear",contactsSaved:"Contacts saved only on this device.",contactsCleared:"Emergency contacts cleared.",
+ contactsInvalid:"Enter both names and both phone numbers. Phone numbers may use only digits, spaces, + and -.",
+ contactsStorageError:"Could not save or read contacts on this device. Check browser storage settings.",
+ saveBankPrompt:"Save your bank's number now so it is one tap next time",
+ callBank:"Call my bank",callFamily:"Call my family",call1930:"Call 1930",
+});
+Object.assign(T.ta,{
+ prepayOpen:"யாரிடமாவது பணம் கொடுக்க வேண்டுமா? முதலில் சரிபாருங்கள்.",prepayYes:"ஆம்",prepayNo:"இல்லை",prepayStop:"நிறுத்துங்கள். பணம் இப்போது கொடுக்க வேண்டாம்.",prepayCalmTitle:"இந்த கேள்விகள் எந்த எச்சரிக்கையும் காட்டவில்லை.",prepayCalmText:"நீங்கள் அறிந்த நபர்களுக்கு மட்டுமே பணம் கொடுங்கள்; பணம் செலுத்தும் செயலியில் பெயரை சரிபார்த்த பிறகே கொடுங்கள்.",prepayFamily:"குடும்பத்துக்கு எச்சரிக்கை நகலெடு",prepayPaid:"ஏற்கெனவே பணம் கொடுத்தேன்",prepayShield:"Call Shield",prepayNote:"இது சூழ்நிலையைப் பார்க்கிறது; நபரை அல்ல. பணம் கொடுக்க வேண்டிய நபர் நம்பகமானவர் என்று சொல்ல முடியாது.",prepayStepWait:"காத்திருக்கவும். இப்போது பணம் கொடுக்க வேண்டாம்.",prepayStepCall:"அந்த நபர் அல்லது நிறுவனம் ஏற்கெனவே சேமித்த எண்ணில் அல்லது அதிகாரப்பூர்வ இணையதளத்தில் திரும்ப அழைத்துச் சொல்லுங்கள்; அவர்கள் கொடுத்த எண்ணைப் பயன்படுத்த வேண்டாம்.",prepayStepAsk:"தீர்மானிக்கும் முன் குடும்ப உறுப்பினரிடம் கேளுங்கள்.",prepayWarning:"பண எச்சரிக்கை: எனக்கு விரைவாக பணம் கொடுக்கச் சொன்னார்கள். நான் இன்னும் பணம் கொடுக்கவில்லை. ஏற்கெனவே சேமித்த எண்ணில் அல்லது அதிகாரப்பூர்வ இணையதளத்தில் திரும்ப அழைப்பேன். முடிவெடுக்கும் முன் குடும்ப உறுப்பினரிடம் கேட்பேன்.",prepayAlert:"இந்த பதில்கள் எச்சரிக்கை அறிகுறிகளாக உள்ளன:",callOpen:"இப்போது சந்தேகமான அழைப்பில் இருக்கிறீர்களா?",callTitle:"அழைப்பு பாதுகாப்பு",callBack:"Call Shield ஐ மூடு",callLimit:"Call Shield அழைப்பின் சூழ்நிலையைப் பார்க்கிறது; குரலை அல்ல. குரல் நகலைக் கண்டறிவதாக நாங்கள் கூறவில்லை. குரல் உண்மையாகக் கேட்டாலும், சேமித்த எண்ணில் திரும்ப அழைப்பதும் குடும்ப ரகசியச் சொல்லும் உதவும்.",callPrivacy:"அழைப்பைக் கேட்கவோ பதிவு செய்யவோ மைக்ரோஃபோனைப் பயன்படுத்தவோ மாட்டோம். அழைப்புத் தகவல் எதுவும் எங்கும் அனுப்பப்படாது.",
+ tipTitle:"குடும்ப ரகசியச் சொல்",tipBody:"உறவினர்களுடன் ஒரு ரகசியச் சொல்லை முடிவு செய்யுங்கள். அவசரமாகப் பணம் கேட்டால் அந்தச் சொல்லைக் கேளுங்கள். இணையத்தில் பகிராத, உண்மையான நபருக்கே தெரிந்த ஒரு கேள்வியையும் கேளுங்கள்.",
+ callProgress:"கேள்வி {n} / {total}",callYes:"ஆம்",callNo:"இல்லை",callRisk:"ஆபத்து புள்ளிகள்",callCalm:"எச்சரிக்கை அறிகுறிகள் குறைவாக உள்ளன.",callVerify:"செயல்படும் முன் சரிபாருங்கள். ஏற்கெனவே தெரிந்த எண்ணில் திரும்ப அழையுங்கள்.",
+ callOther:"மற்றவை",callOtherLabel:"என்ன நடக்கிறது என்பதைச் சுருக்கமாக எழுதுங்கள். குறியீடு, PIN, கடவுச்சொல் அல்லது கணக்கு விவரங்களை எழுத வேண்டாம்.",callOtherPrivacy:"இந்தக் குறிப்பு இந்தப் பக்கத்தில் மட்டுமே இருக்கும். இது அனுப்பப்படாது அல்லது சேமிக்கப்படாது.",
+ callOtherGuidance:"தெரியவில்லை என்றால் அழைப்பைத் துண்டிக்கவும். பணம் அனுப்பவோ குறியீட்டைப் பகிரவோ வேண்டாம். நம்பும் ஒருவரிடம் கேட்டு, ஏற்கெனவே சேமித்த அல்லது அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணில் திரும்ப அழையுங்கள்.",
+ callOtherContinue:"வழிகாட்டுதலைக் காட்டு",callOtherBack:"பதில்களுக்குத் திரும்பு",callYourNote:"உங்கள் குறிப்பு",
+ callOtherResponseTitle:"இந்தக் கேள்விக்கான வழிகாட்டுதல்",callOtherResponseLimit:"உங்கள் குறிப்பைத் தானாகப் புரிந்துகொள்ள மாட்டோம். நீங்கள் தேர்ந்தெடுத்த கேள்விக்கான நிலையான வழிகள் இவை; நீங்கள் எழுதிய விவரங்களை மதிப்பீடு செய்தவை அல்ல.",callOtherNext:"கேள்விகளைத் தொடரவும்",callScenarioPrompt:"இதில் ஏதேனும் நடந்திருந்தால், அதற்கான கூடுதல் வழிகளைப் பார்க்கத் தேர்ந்தெடுக்கவும்:",
+ callAgain:"மீண்டும் தொடங்கு",hangup:"இப்போதே அழைப்பைத் துண்டிக்கவும்.",stepHangup:"அழைப்பைத் துண்டிக்கவும்.",stepCallback:"ஏற்கெனவே சேமித்த எண்ணிலோ அதிகாரப்பூர்வ இணையதளத்தில் உள்ள எண்ணிலோ மட்டும் திரும்ப அழையுங்கள். அவர்கள் கொடுத்த எண்ணை அழைக்காதீர்கள்.",
+ stepCode:"பணம் அனுப்பாதீர்கள்; குறியீட்டைப் பகிராதீர்கள்.",callScript:"அதிகாரப்பூர்வ எண்ணில் நான் திரும்ப அழைக்கிறேன்.",callPaid:"ஏற்கெனவே பணம் அனுப்பினேன் அல்லது குறியீட்டைப் பகிர்ந்தேன்",callWarn:"குடும்பத்துக்கு எச்சரிக்கையை நகலெடு",
+ callWarning:"மோசடி அழைப்பு எச்சரிக்கை: ஒருவர் பணம் அல்லது குறியீடு கேட்டார். அழைப்பைத் துண்டித்து, சேமித்த எண்ணில் திரும்ப அழையுங்கள். OTP ஐப் பகிராதீர்கள். பணம் இழந்தால் 1930 ஐ அழைக்கவும்.",
+ callError:"Call Shield ஐத் திறக்க முடியவில்லை. சர்வர் இயங்குகிறதா எனப் பாருங்கள்.",highlightTitle:"விதிகள் பொருந்திய உங்கள் செய்தி",legend:"கண்டறிந்த விதி பொருத்தங்கள்",linkLabel:"இணைப்பு",
+ contactsTitle:"எனது அவசரத் தொடர்புகள்",contactsSummary:"அவசர அழைப்புகளுக்கு எண்களைச் சேமிக்கவும் (விருப்பம்)",contactsIntro:"வங்கி மற்றும் குடும்ப எண்களை ஒருமுறை சேர்க்கவும்; மீட்புத் திட்டத்தில் அழைப்பு பொத்தான்களாக வரும். இந்த உலாவியில் மட்டும் சேமிக்கப்படும்.",contactsPrivacy:"இந்தச் சாதனத்தில் மட்டும் சேமிக்கப்படும். இது எங்களுக்கு வராது.",
+ bankName:"வங்கியின் பெயர்",bankPhone:"வங்கியின் அதிகாரப்பூர்வ உதவி எண் (அட்டையில் உள்ள எண்)",familyName:"குடும்ப உறுப்பினர் பெயர்",familyPhone:"குடும்ப உறுப்பினரின் தொலைபேசி எண்",
+ saveContacts:"சேமி",clearContacts:"அழி",contactsSaved:"தொடர்புகள் இந்தச் சாதனத்தில் மட்டும் சேமிக்கப்பட்டன.",contactsCleared:"அவசரத் தொடர்புகள் அழிக்கப்பட்டன.",
+ contactsInvalid:"இரண்டு பெயர்களையும் இரண்டு தொலைபேசி எண்களையும் உள்ளிடவும். எண்களில் இலக்கங்கள், இடைவெளி, + மற்றும் - மட்டும் இருக்கலாம்.",
+ contactsStorageError:"இந்தச் சாதனத்தில் தொடர்புகளைச் சேமிக்கவோ படிக்கவோ முடியவில்லை. உலாவி சேமிப்பு அமைப்புகளைப் பாருங்கள்.",
+ saveBankPrompt:"அடுத்த முறை ஒரே தொடுதலில் அழைக்க, உங்கள் வங்கி எண்ணை இப்போது சேமிக்கவும்",
+ callBank:"என் வங்கியை அழை",callFamily:"என் குடும்பத்தினரை அழை",call1930:"1930 ஐ அழை",
+});
+Object.assign(T.hi,{
+ prepayOpen:"किसी को पैसे दे रहे हैं? पहले जाँचें।",prepayYes:"हाँ",prepayNo:"नहीं",prepayStop:"रुकें। अभी पैसे न दें।",prepayCalmTitle:"इन सवालों में कोई चेतावनी नहीं मिली।",prepayCalmText:"केवल ऐसे लोगों को भुगतान करें जिनसे आप परिचित हैं, और भुगतान ऐप में नाम जाँचने के बाद ही करें।",prepayFamily:"परिवार के लिए चेतावनी कॉपी करें",prepayPaid:"मैंने पहले ही भुगतान कर दिया",prepayShield:"Call Shield",prepayNote:"यह स्थिति को देखता है, व्यक्ति को नहीं। यह नहीं बता सकता कि भुगतान करने वाला भरोसेमंद है या नहीं।",prepayStepWait:"रुकें। अभी पैसे न दें।",prepayStepCall:"उस आदमी या कंपनी को पहले से सेव नंबर या आधिकारिक वेबसाइट के नंबर पर वापस कॉल करें, उनके दिए नंबर पर नहीं।",prepayStepAsk:"फैसला करने से पहले परिवार के किसी भरोसेमंद सदस्य से पूछें।",prepayWarning:"भुगतान की चेतावनी: मुझे जल्दी भुगतान करने के लिए कहा गया। मैं अभी भुगतान नहीं कर रहा हूँ। मैं पहले से सेव नंबर या आधिकारिक वेबसाइट से वापस कॉल करूंगा। फैसला करने से पहले परिवार से पूछूँगा।",prepayAlert:"ये उत्तर चेतावनी के संकेत हैं:",callOpen:"क्या अभी कोई संदिग्ध फ़ोन कॉल चल रही है?",callTitle:"कॉल शील्ड",callBack:"कॉल शील्ड बंद करें",callLimit:"Call Shield कॉल की स्थिति देखता है, आवाज़ नहीं। हम नकली आवाज़ पहचानने का दावा नहीं करते। आवाज़ असली लगे, तब भी पहले से सेव नंबर पर वापस कॉल करना और परिवार का गुप्त शब्द तय करना मददगार है।",callPrivacy:"हम कॉल नहीं सुनते या रिकॉर्ड नहीं करते और माइक्रोफ़ोन का उपयोग नहीं करते। कॉल की कोई जानकारी कहीं नहीं भेजी जाती।",
+ tipTitle:"परिवार का गुप्त शब्द",tipBody:"परिवार के लोगों के साथ एक गुप्त शब्द तय करें। पैसे की जल्दी माँग हो तो वह शब्द पूछें। ऐसा सवाल पूछें जिसका जवाब असली व्यक्ति जानता हो और जो इंटरनेट पर न हो।",
+ callProgress:"सवाल {n} / {total}",callYes:"हाँ",callNo:"नहीं",callRisk:"जोखिम अंक",callCalm:"चेतावनी के संकेत कम हैं।",callVerify:"कुछ करने से पहले जाँचें। पहले से मौजूद नंबर पर वापस कॉल करें।",
+ callOther:"दूसरी बात",callOtherLabel:"क्या हो रहा है, संक्षेप में लिखें। कोई कोड, PIN, पासवर्ड या खाते की जानकारी न लिखें।",callOtherPrivacy:"यह नोट इसी पेज पर रहेगा। इसे भेजा या सेव नहीं किया जाता।",
+ callOtherGuidance:"समझ न आए तो कॉल काट दें। पैसे न भेजें और कोई कोड न बताएँ। किसी भरोसेमंद व्यक्ति से बात करें और पहले से सेव या आधिकारिक वेबसाइट पर दिए नंबर पर वापस कॉल करें।",
+ callOtherContinue:"सलाह दिखाएँ",callOtherBack:"जवाबों पर लौटें",callYourNote:"आपका नोट",
+ callOtherResponseTitle:"इस सवाल के लिए सलाह",callOtherResponseLimit:"आपके नोट का अपने-आप विश्लेषण नहीं होता। ये तय किए गए कदम आपके चुने सवाल से जुड़े हैं; लिखी बातों का आकलन नहीं हैं।",callOtherNext:"सवाल जारी रखें",callScenarioPrompt:"अगर इनमें से कुछ हुआ है, तो उससे जुड़े कदम देखने के लिए चुनें:",
+ callAgain:"फिर से शुरू करें",hangup:"अभी फ़ोन काट दें।",stepHangup:"फ़ोन काट दें।",stepCallback:"केवल पहले से सेव नंबर या आधिकारिक वेबसाइट पर दिए नंबर पर वापस कॉल करें। उनके दिए नंबर पर कॉल न करें।",
+ stepCode:"पैसे न भेजें और कोई कोड न बताएं।",callScript:"मैं आधिकारिक नंबर पर वापस कॉल करूँगा।",callPaid:"मैंने पैसे भेजे या कोड बताया है",callWarn:"परिवार के लिए चेतावनी कॉपी करें",
+ callWarning:"ठगी वाली कॉल की चेतावनी: किसी ने पैसे या कोड माँगे। फ़ोन काटें और सेव नंबर पर वापस कॉल करें। OTP न बताएं। पैसे गए हों तो 1930 पर कॉल करें।",
+ callError:"कॉल शील्ड नहीं खुला। सर्वर चल रहा है या नहीं, देखें।",highlightTitle:"नियमों से मेल वाला आपका संदेश",legend:"मिले नियम संकेत",linkLabel:"लिंक",
+ contactsTitle:"मेरे आपातकालीन संपर्क",contactsSummary:"ज़रूरत पर तुरंत कॉल के लिए नंबर जोड़ें (वैकल्पिक)",contactsIntro:"बैंक और परिवार के नंबर एक बार जोड़ें; वे मदद की योजना में कॉल बटन बनेंगे। ये सिर्फ़ इसी ब्राउज़र में सेव होंगे.",contactsPrivacy:"सिर्फ़ इसी डिवाइस पर सेव होगा। हमें यह नहीं मिलेगा।",
+ bankName:"बैंक का नाम",bankPhone:"बैंक का आधिकारिक हेल्पलाइन नंबर (अपने कार्ड से लें)",familyName:"परिवार के सदस्य का नाम",familyPhone:"परिवार के सदस्य का फ़ोन नंबर",
+ saveContacts:"सेव करें",clearContacts:"मिटाएँ",contactsSaved:"संपर्क सिर्फ़ इसी डिवाइस पर सेव हुए।",contactsCleared:"आपातकालीन संपर्क मिटा दिए गए।",
+ contactsInvalid:"दोनों नाम और दोनों फ़ोन नंबर भरें। नंबर में केवल अंक, खाली जगह, + और - लिखें।",
+ contactsStorageError:"इस डिवाइस पर संपर्क सेव या पढ़ नहीं पाए। ब्राउज़र की स्टोरेज सेटिंग देखें।",
+ saveBankPrompt:"अगली बार एक टैप में कॉल करने के लिए बैंक का नंबर अभी सेव करें",
+ callBank:"मेरे बैंक को कॉल करें",callFamily:"परिवार को कॉल करें",call1930:"1930 पर कॉल करें",
+});
+Object.assign(T.en,{
+ scorePanelTitle:"Why this verdict",ruleScoreLabel:"Rules",aiScoreLabel:"AI",finalScoreLabel:"Final",
+ scoreRulesOnly:"AI not used. The final score is from the rules.",
+ scoreBothAgree:"Both checks agree on the verdict.",
+ scoreFused:"The checks disagree, so the final score uses the fused value.",
+ scoreStrongRules:"The rules score was 60 or more, so strong rule evidence was kept and not lowered.",
+ pauseTitle:"Take a pause",pauseText:"If you can, wait 10 minutes before acting and ask a family member to review the message. This is only a suggestion.",
+ pauseSkip:"Skip pause and continue",pauseContinue:"Continue now",pauseMinute:"About {n} minutes remain in the suggested pause.",
+ pauseFinished:"The suggested pause is over. Continue whenever you are ready.",pauseFamily:"Copy warning for family",aiNotUsed:"AI not used",
+ prepayOpen:"About to pay someone? Check first.",prepayYes:"Yes",prepayNo:"No",prepayStop:"Stop. Do not pay yet.",prepayCalmTitle:"These questions found no warning signs.",prepayCalmText:"Only pay people you know, and only after checking the name in your payment app.",prepayFamily:"Copy warning for family",prepayPaid:"I already paid",prepayShield:"Call Shield",prepayNote:"This checks the situation, not the person. It cannot tell whether a payee is trustworthy.",prepayStepWait:"Wait. Do not pay now.",prepayStepCall:"Call the person or company back on a number you already have saved or on the official website, never on a number they gave you.",prepayStepAsk:"Ask a family member before you decide.",prepayWarning:"Payment warning: I was asked to pay quickly. I am not paying yet. I will call back on a number I already have saved or on the official website. I will ask a family member before I decide.",prepayAlert:"These answers are warning signs:"
+});
+Object.assign(T.ta,{
+ scorePanelTitle:"இந்த முடிவு ஏன்?",ruleScoreLabel:"விதிகள்",aiScoreLabel:"AI",finalScoreLabel:"இறுதி",
+ scoreRulesOnly:"AI பயன்படுத்தப்படவில்லை. இறுதி மதிப்பெண் விதிகளின் அடிப்படையில் உள்ளது.",
+ scoreBothAgree:"இரண்டு சோதனைகளும் ஒரே முடிவைக் காட்டுகின்றன.",
+ scoreFused:"இரண்டு சோதனைகளும் வேறுபடுகின்றன; அதனால் இணைந்த மதிப்பெண் பயன்படுத்தப்பட்டது.",
+ scoreStrongRules:"விதி மதிப்பெண் 60 அல்லது அதற்கு மேல் இருந்ததால், வலுவான விதி அறிகுறிகள் குறைக்கப்படவில்லை.",
+ pauseTitle:"சற்று நிதானியுங்கள்",pauseText:"முடிந்தால், செயல்படும் முன் 10 நிமிடம் காத்திருந்து குடும்ப உறுப்பினரிடம் செய்தியைப் பார்க்கச் சொல்லுங்கள். இது ஒரு பரிந்துரை மட்டுமே.",
+ pauseSkip:"காத்திருக்காமல் தொடரவும்",pauseContinue:"இப்போது தொடரவும்",pauseMinute:"பரிந்துரைக்கப்பட்ட காத்திருப்பில் சுமார் {n} நிமிடங்கள் உள்ளன.",
+ pauseFinished:"பரிந்துரைத்த காத்திருப்பு முடிந்தது. நீங்கள் தயாரானதும் தொடரலாம்.",pauseFamily:"குடும்பத்துக்கு எச்சரிக்கையை நகலெடு",aiNotUsed:"AI பயன்படுத்தப்படவில்லை",
+ prepayOpen:"யாரிடமாவது பணம் கொடுக்க வேண்டுமா? முதலில் சரிபாருங்கள்.",prepayYes:"ஆம்",prepayNo:"இல்லை",prepayStop:"நிறுத்துங்கள். பணம் இப்போது கொடுக்க வேண்டாம்.",prepayCalmTitle:"இந்த கேள்விகள் எந்த எச்சரிக்கையும் காட்டவில்லை.",prepayCalmText:"நீங்கள் அறிந்த நபர்களுக்கு மட்டுமே பணம் கொடுங்கள்; பணம் செலுத்தும் செயலியில் பெயரை சரிபார்த்த பிறகே கொடுங்கள்.",prepayFamily:"குடும்பத்துக்கு எச்சரிக்கையை நகலெடு",prepayPaid:"ஏற்கெனவே பணம் கொடுத்தேன்",prepayShield:"Call Shield",prepayNote:"இது சூழ்நிலையைப் பார்க்கிறது; நபரை அல்ல. பணம் கொடுக்க வேண்டிய நபர் நம்பகமானவர் என்று சொல்ல முடியாது.",prepayStepWait:"காத்திருக்கவும். இப்போது பணம் கொடுக்க வேண்டாம்.",prepayStepCall:"அந்த நபர் அல்லது நிறுவனம் ஏற்கெனவே சேமித்த எண்ணில் அல்லது அதிகாரப்பூர்வ இணையதளத்தில் திரும்ப அழைத்துச் சொல்லுங்கள்; அவர்கள் கொடுத்த எண்ணைப் பயன்படுத்த வேண்டாம்.",prepayStepAsk:"தீர்மானிக்கும் முன் குடும்ப உறுப்பினரிடம் கேளுங்கள்.",prepayWarning:"பண எச்சரிக்கை: எனக்கு விரைவாக பணம் கொடுக்கச் சொன்னார்கள். நான் இன்னும் பணம் கொடுக்கவில்லை. ஏற்கெனவே சேமித்த எண்ணில் அல்லது அதிகாரப்பூர்வ இணையதளத்தில் திரும்ப அழைப்பேன். முடிவெடுக்கும் முன் குடும்ப உறுப்பினரிடம் கேட்பேன்.",prepayAlert:"இந்த பதில்கள் எச்சரிக்கை அறிகுறிகளாக உள்ளன:"
+});
+Object.assign(T.hi,{
+ scorePanelTitle:"यह नतीजा क्यों?",ruleScoreLabel:"नियम",aiScoreLabel:"AI",finalScoreLabel:"अंतिम",
+ scoreRulesOnly:"AI का उपयोग नहीं हुआ। अंतिम अंक नियमों से आया है.",
+ scoreBothAgree:"दोनों जाँचें एक ही नतीजा बताती हैं.",
+ scoreFused:"दोनों जाँचों के नतीजे अलग हैं, इसलिए मिला-जुला अंतिम अंक दिखाया गया है.",
+ scoreStrongRules:"नियमों के अंक 60 या अधिक थे, इसलिए नियमों के मज़बूत संकेतों को कम नहीं किया गया.",
+ pauseTitle:"थोड़ा रुकें",pauseText:"हो सके तो कुछ करने से पहले 10 मिनट रुकें और परिवार के किसी सदस्य से संदेश देखने को कहें। यह सिर्फ़ एक सुझाव है.",
+ pauseSkip:"रुके बिना आगे बढ़ें",pauseContinue:"अब आगे बढ़ें",pauseMinute:"सुझाए गए विराम में लगभग {n} मिनट बाकी हैं.",
+ pauseFinished:"सुझाया गया विराम पूरा हुआ। तैयार होने पर आगे बढ़ें.",pauseFamily:"परिवार के लिए चेतावनी कॉपी करें",aiNotUsed:"AI का उपयोग नहीं हुआ",
+ prepayOpen:"किसी को पैसे दे रहे हैं? पहले जाँचें।",prepayYes:"हाँ",prepayNo:"नहीं",prepayStop:"रुकें। अभी पैसे न दें।",prepayCalmTitle:"इन सवालों में कोई चेतावनी नहीं मिली।",prepayCalmText:"केवल ऐसे लोगों को भुगतान करें जिनसे आप परिचित हैं, और भुगतान ऐप में नाम जाँचने के बाद ही करें।",prepayFamily:"परिवार के लिए चेतावनी कॉपी करें",prepayPaid:"मैंने पहले ही भुगतान कर दिया",prepayShield:"Call Shield",prepayNote:"यह स्थिति को देखता है, व्यक्ति को नहीं। यह नहीं बता सकता कि भुगतान करने वाला भरोसेमंद है या नहीं।",prepayStepWait:"रुकें। अभी पैसे न दें।",prepayStepCall:"उस आदमी या कंपनी को पहले से सेव नंबर या आधिकारिक वेबसाइट के नंबर पर वापस कॉल करें, उनके दिए नंबर पर नहीं।",prepayStepAsk:"फैसला करने से पहले परिवार के किसी भरोसेमंद सदस्य से पूछें।",prepayWarning:"भुगतान की चेतावनी: मुझे जल्दी भुगतान करने के लिए कहा गया। मैं अभी भुगतान नहीं कर रहा हूँ। मैं पहले से सेव नंबर या आधिकारिक वेबसाइट से वापस कॉल करूंगा। फैसला करने से पहले परिवार से पूछूँगा।",prepayAlert:"ये उत्तर चेतावनी के संकेत हैं:"
+});
+const S=["Dear customer, your SBI account will be BLOCKED within 24 hours due to incomplete KYC. Update immediately: http://sbi-kyc-update.xyz/login or your account will be suspended.",
+"Hi mom, this is my new number, I lost my phone. Please send Rs 25,000 urgently to this UPI id, I'll explain later. Don't tell dad.",
+"Your parcel is held at customs. Pay a Rs 49 processing fee within 2 hours: https://bit.ly/3xParc3l or it will be returned. - India Post",
+"123456 is your OTP for login to Flipkart. Do not share this code with anyone. Valid for 10 minutes.",
+"அன்புள்ள வாடிக்கையாளரே, KYC புதுப்பிக்கப்படாததால் உங்கள் வங்கி கணக்கு இன்று முடக்கப்படும். உடனே புதுப்பிக்கவும்: http://sbi-kyc-update.xyz",
+"प्रिय ग्राहक, KYC अपडेट न होने से आपका बैंक खाता आज ब्लॉक हो जाएगा। तुरंत अपडेट करें: http://sbi-kyc-update.xyz"];
+const $=id=>document.getElementById(id);let lang="en",cfg={guidance_date:"[not set]",reviewed:false},last="";
+let callQuestions=[],callAnswers=[],callActive=false,callAlerted=false,callEnteringOther=false,callOtherResponse=null,callScenario=null,callScenarioMap={};
+let pauseTimerId=null,pauseSeconds=0;
+const CONTACTS_KEY="scamshield_emergency_contacts";let contacts=null,contactStatusKey="";
+const tt=k=>T[lang][k];
+let prepayQuestions=[],prepayAnswers=[],prepayTimer=null,prepaySeconds=0,easyRead=false;
+function paint(){
+ document.documentElement.lang=lang;$("lang").value=lang;
+ document.body.classList.toggle("easy-read",easyRead);
+ hidePause();
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=tt(e.dataset.t));
+ $("go").textContent=tt("check");$("cp").textContent=tt("copy");$("warn").textContent=tt("warn");
+ $("callProgressbar").setAttribute("aria-label",tt("callRisk"));
+ $("gd").textContent=cfg.guidance_date;$("unrev").classList.toggle("hide",cfg.reviewed||lang==="en");
+ $("callUnrev").classList.toggle("hide",cfg.reviewed||lang==="en");
+ $("contactStatus").textContent=contactStatusKey?tt(contactStatusKey):"";
+ $("exb").replaceChildren(...tt("e").map((n,i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{$("t").value=S[i]};return b}));
+ $("out").classList.add("hide");$("plan").classList.add("hide");
+ if(callActive)renderCall();
+}
+function loadSavedPrefs(){
+ try{
+  const savedLang=localStorage.getItem("scamshield_lang");
+  const savedEasy=localStorage.getItem("scamshield_easy");
+  if(savedLang&&["en","ta","hi"].includes(savedLang))lang=savedLang;
+  easyRead=savedEasy==="1";
+ }catch(e){}
+}
+function setEasyRead(next){
+ easyRead=next===true;
+ try{localStorage.setItem("scamshield_easy",easyRead?"1":"0");}catch(e){}
+ document.body.classList.toggle("easy-read",easyRead);
+}
+$("lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("scamshield_lang",lang)}catch(e){};paint();if(callActive)renderCall()};
+fetch("/api/config").then(r=>r.json()).then(c=>{cfg=c;loadSavedPrefs();paint()}).catch(()=>{loadSavedPrefs();paint()});
+fetch("/api/prepay").then(r=>r.json()).then(d=>{prepayQuestions=(d.questions||[]);}).catch(()=>{});
+function renderPrepay(){
+ if(!prepayQuestions.length)return;
+ const i=prepayAnswers.length;const q=prepayQuestions[i];
+ const progress=((i)/prepayQuestions.length)*100;
+ $("prepayPanel").classList.remove("hide");$("prepayAlert").classList.add("hide");$("prepayCalm").classList.add("hide");
+ if(!q){
+  $("prepayPanel").classList.add("hide");
+  return;
+ }
+ $("prepayProgressText").textContent=(i+1)+" / "+prepayQuestions.length;
+ $("prepayProgressBar").style.width=progress+"%";
+ $("prepayQuestion").textContent=q.text[lang];
+ $("prepayYes").textContent=tt("prepayYes");$("prepayNo").textContent=tt("prepayNo");
+ $("prepayQuestion").focus({preventScroll:true});
+}
+function stopPrepayTimer(){if(prepayTimer){clearInterval(prepayTimer);prepayTimer=null;}}
+function startPrepayTimer(){
+ stopPrepayTimer();prepaySeconds=600;const tick=()=>{
+  const m=Math.floor(prepaySeconds/60),s=prepaySeconds%60;$("prepayTimerText").textContent=m+":"+String(s).padStart(2,"0");
+  if(prepaySeconds<=0){stopPrepayTimer();return;}
+  prepaySeconds--;
+ };
+ tick();prepayTimer=setInterval(tick,1000);
+}
+function finishPrepayRisk(risky){
+ const list=$("prepayReasons");list.replaceChildren(...risky.map(item=>{const li=document.createElement("li");li.textContent=item.why;return li;}));
+ $("prepayRiskText").textContent=tt("prepayAlert");
+ $("prepayAlert").classList.remove("hide");$("prepayPanel").classList.add("hide");
+ $("prepayFamily").textContent=tt("prepayFamily");$("prepayPaid").textContent=tt("prepayPaid");
+ $("prepayShield").classList.toggle("hide",!document.getElementById("openCall"));
+ $("prepayShield").textContent=tt("prepayShield");
+ startPrepayTimer();
+}
+function finishPrepayCalm(){
+ $("prepayPanel").classList.add("hide");$("prepayAlert").classList.add("hide");
+ $("prepayCalm").classList.remove("hide");
+ $("prepayCalm").querySelector("h3").textContent=tt("prepayCalmTitle");
+ $("prepayCalm").querySelector("p").textContent=tt("prepayCalmText");
+}
+$("prepayOpen").onclick=()=>{prepayAnswers=[];stopPrepayTimer();$("prepayAlert").classList.add("hide");$("prepayCalm").classList.add("hide");$("prepayPanel").classList.remove("hide");renderPrepay();};
+$("prepayYes").onclick=()=>{
+ const q=prepayQuestions[prepayAnswers.length];
+ prepayAnswers.push({answer:"yes",question:q});
+ const risky=prepayAnswers.filter(a=>a.answer===a.question.risky_answer);
+ if(risky.length){finishPrepayRisk(risky.map(a=>({why:a.question.why[lang]})));return;}
+ if(prepayAnswers.length>=prepayQuestions.length){finishPrepayCalm();return;}
+ renderPrepay();
+};
+$("prepayNo").onclick=()=>{
+ const q=prepayQuestions[prepayAnswers.length];
+ prepayAnswers.push({answer:"no",question:q});
+ const risky=prepayAnswers.filter(a=>a.answer===a.question.risky_answer);
+ if(risky.length){finishPrepayRisk(risky.map(a=>({why:a.question.why[lang]})));return;}
+ if(prepayAnswers.length>=prepayQuestions.length){finishPrepayCalm();return;}
+ renderPrepay();
+};
+$("prepayFamily").onclick=async()=>{const msg=tt("prepayWarning");await copyWarning(msg,$("prepayFamily"),"prepayFamily");};
+$("prepayPaid").onclick=()=>{markPaidBranches(["money"]);$("prepayAlert").classList.add("hide");$("mk").click();};
+$("prepayShield").onclick=()=>{$("prepayAlert").classList.add("hide");openCall();};
+const fill=(ul,a)=>ul.replaceChildren(...a.map(x=>{const l=document.createElement("li");l.textContent=x;return l}));
+const defang=s=>s.replace(/(?:https?:\/\/|www\.)\S+/gi,u=>u.replace(/^http/i,"hxxp").replace(/\./g,"[.]"));
+function recoveryMode(){
+ return [...document.querySelectorAll('input[type="checkbox"]')].some(box=>box.checked)||
+  !$("plan").classList.contains("hide");
+}
+function stopPause(){
+ if(pauseTimerId!==null){clearInterval(pauseTimerId);pauseTimerId=null}
+}
+function hidePause(){
+ stopPause();$("pausePanel").classList.add("hide");
+}
+function startPause(verdict){
+ hidePause();
+ if(!["suspicious","likely_scam"].includes(verdict)||recoveryMode())return;
+ pauseSeconds=600;
+ $("pausePanel").classList.remove("hide");
+ $("pauseSkip").textContent=tt("pauseSkip");
+ $("pauseStatus").textContent=tt("pauseMinute").replace("{n}","10");
+ const update=()=>{
+  const minutes=String(Math.floor(pauseSeconds/60)).padStart(2,"0");
+  const seconds=String(pauseSeconds%60).padStart(2,"0");
+  $("pauseClock").textContent=minutes+":"+seconds;
+ };
+ update();
+ pauseTimerId=setInterval(()=>{
+  pauseSeconds--;
+  update();
+  if(pauseSeconds<=0){
+   stopPause();$("pauseStatus").textContent=tt("pauseFinished");
+   $("pauseSkip").textContent=tt("pauseContinue");return;
+  }
+  if(pauseSeconds%60===0)$("pauseStatus").textContent=tt("pauseMinute").replace("{n}",String(pauseSeconds/60));
+ },1000);
+}
+function skipPause(){stopPause();$("pausePanel").classList.add("hide")}
+function setContactStatus(key){contactStatusKey=key;$("contactStatus").textContent=key?tt(key):""}
+function loadContacts(){
+ try{
+  const saved=localStorage.getItem(CONTACTS_KEY);
+  if(saved){
+   const value=JSON.parse(saved);
+   if(!value||typeof value.bankName!=="string"||typeof value.bankPhone!=="string"||
+      typeof value.familyName!=="string"||typeof value.familyPhone!=="string")throw new Error("Invalid saved contacts");
+   contacts=value;
+   $("bankName").value=value.bankName;$("bankPhone").value=value.bankPhone;
+   $("familyName").value=value.familyName;$("familyPhone").value=value.familyPhone;
+  }
+ }catch(e){contacts=null;setContactStatus("contactsStorageError")}
+}
+function phoneDigits(value){return value.replace(/\D/g,"")}
+function validPhone(value){return /^[0-9 +\-]+$/.test(value)&&/\d/.test(value)}
+function telLink(label,number){
+ const link=document.createElement("a");link.textContent=label;link.href="tel:"+phoneDigits(number);return link;
+}
+function openContactForm(){
+ $("contactForm").open=true;
+ $("contactForm").scrollIntoView({behavior:"smooth",block:"center"});
+ $("bankPhone").focus({preventScroll:true});
+}
+function renderContactActions(){
+ const root=$("contactActions"),nodes=[];
+ if(contacts){
+  nodes.push(telLink(tt("callBank"),contacts.bankPhone),telLink(tt("callFamily"),contacts.familyPhone));
+ }else{
+  const prompt=document.createElement("button");prompt.textContent=tt("saveBankPrompt");
+  prompt.onclick=openContactForm;
+  nodes.push(prompt);
+ }
+ nodes.push(telLink(tt("call1930"),"1930"));
+ root.replaceChildren(...nodes);
+}
+function saveContacts(){
+ const value={bankName:$("bankName").value.trim(),bankPhone:$("bankPhone").value.trim(),
+  familyName:$("familyName").value.trim(),familyPhone:$("familyPhone").value.trim()};
+ if(!value.bankName||!value.familyName||!validPhone(value.bankPhone)||!validPhone(value.familyPhone)){
+  setContactStatus("contactsInvalid");return;
+ }
+ try{
+  localStorage.setItem(CONTACTS_KEY,JSON.stringify(value));contacts=value;
+  setContactStatus("contactsSaved");if(!$("plan").classList.contains("hide"))renderContactActions();
+ }catch(e){setContactStatus("contactsStorageError")}
+}
+function clearContacts(){
+ try{
+  localStorage.removeItem(CONTACTS_KEY);contacts=null;
+  $("bankName").value=$("bankPhone").value=$("familyName").value=$("familyPhone").value="";
+  setContactStatus("contactsCleared");if(!$("plan").classList.contains("hide"))renderContactActions();
+ }catch(e){setContactStatus("contactsStorageError")}
+}
+function renderHighlights(text,d){
+ const root=$("highlight"),legend=$("legend"),note=$("noSpanNote"),tip=$("highlightTip"),chars=Array.from(text);
+ const items=[...(d.spans?.tactics||[]).map(s=>({...s,kind:"tactic",label:s.tactic})),
+  ...(d.spans?.urls||[]).map(s=>({...s,kind:"url",label:tt("linkLabel")}))]
+ const merged=mergeSpans(items,chars.length);
+ root.replaceChildren();legend.replaceChildren();tip.textContent="";note.classList.toggle("hide",items.length>0);
+ if(!items.length){
+  root.textContent=text;
+  if(d.verdict==="no_signs_found")note.textContent=tt("vn");
+  else note.textContent="";
+  return;
+ }
+ let pos=0;const tacticLabels=new Set();
+ for(const region of merged){
+  if(region.start>pos)root.append(document.createTextNode(chars.slice(pos,region.start).join("")));
+  const mark=document.createElement("span"),labels=[...region.labels];
+  mark.className="highlighted"+(region.url?" url":"");
+  mark.textContent=chars.slice(region.start,region.end).join("");
+  mark.title=[...labels,...(region.url?[tt("linkLabel")]:[])].join(", ");
+  mark.setAttribute("aria-label",mark.title);
+  mark.tabIndex=0;
+  mark.addEventListener("click",()=>tip.textContent=mark.title);
+  mark.addEventListener("focus",()=>tip.textContent=mark.title);
+  root.append(mark);pos=region.end;
+  labels.forEach(label=>tacticLabels.add(label));
+ }
+ if(pos<chars.length)root.append(document.createTextNode(chars.slice(pos).join("")));
+ const legends=[...tacticLabels,...(items.some(s=>s.kind==="url")?[tt("linkLabel")]:[])];
+ legend.replaceChildren(...legends.map(label=>{const chip=document.createElement("span");chip.className="chip";chip.textContent=label;return chip}));
+}
+function mergeSpans(items,length){
+ const sorted=items.filter(s=>Number.isInteger(s.start)&&Number.isInteger(s.end)&&s.start>=0&&s.end>s.start&&s.start<length)
+  .map(s=>({...s,end:Math.min(s.end,length)})).sort((a,b)=>a.start-b.start||a.end-b.end);
+ const merged=[];
+ for(const item of sorted){
+  const previous=merged[merged.length-1];
+  if(previous&&item.start<previous.end){
+   previous.end=Math.max(previous.end,item.end);
+   if(item.kind==="tactic")previous.labels.add(item.label);
+   if(item.kind==="url")previous.url=true;
+  }else merged.push({start:item.start,end:item.end,labels:new Set(item.kind==="tactic"?[item.label]:[]),url:item.kind==="url"});
+ }
+ return merged;
+}
+$("go").onclick=async()=>{
+ const text=$("t").value.trim();if(text.length<3)return $("t").focus();
+ $("go").disabled=true;$("go").textContent=tt("checking");
+ try{
+  const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,lang})});
+  if(!r.ok)throw new Error(r.status);const d=await r.json();last=text;
+  hidePause();
+  $("out").classList.remove("hide");$("head").className="head "+d.verdict;
+  $("v").textContent=tt({likely_scam:"lv",suspicious:"vs",no_signs_found:"vn"}[d.verdict]);
+  $("st").textContent=tt("risk")+" "+d.score+" / 100";$("b").style.width=d.score+"%";
+  $("ruleScore").textContent=d.rule_score+" / 100";
+  $("aiScore").textContent=d.ai_score===null?tt("aiNotUsed"):d.ai_score+" / 100";
+  $("finalScore").textContent=d.score+" / 100";
+  $("scoreReason").textContent=tt({rules_only:"scoreRulesOnly",both_agree:"scoreBothAgree",fused:"scoreFused",strong_rule_evidence:"scoreStrongRules"}[d.score_rule]);
+  renderHighlights(text,d);
+  fill($("why"),d.reasons);fill($("todo"),d.what_to_do);
+  $("tac").replaceChildren(...d.tactics.map(x=>{const s=document.createElement("span");s.className="chip";s.textContent=x;return s}));
+  $("lk").classList.toggle("hide",!d.links.length);
+  $("links").replaceChildren(...d.links.map(l=>{const e=document.createElement("div");e.className="link"+(l.flags.length?" flag":"");e.textContent=l.url+(l.flags.length?": "+l.flags.join("; "):"");return e}));
+  $("aiNote").textContent=d.ai_used?tt("aion"):tt("aioff");
+  startPause(d.verdict);
+  $("out").scrollIntoView({behavior:"smooth"});
+ }catch(e){alert(tt("err"))}
+ $("go").disabled=false;$("go").textContent=tt("check");
+};
+const copyWarning=async(message,button,key)=>{
+ await navigator.clipboard.writeText(message);button.textContent=tt("copied");
+ setTimeout(()=>button.textContent=tt(key),1500);
+};
+async function warnFamily(button,key){
+ const message=tt("wm").replace("{m}",defang(last).slice(0,160));
+ await copyWarning(message,button,key);
+}
+$("warn").onclick=()=>warnFamily($("warn"),"warn");
+$("pauseFamily").onclick=()=>warnFamily($("pauseFamily"),"pauseFamily");
+$("pauseSkip").onclick=skipPause;
+document.querySelectorAll('input[type="checkbox"]').forEach(box=>box.addEventListener("change",()=>{if(box.checked)hidePause()}));
+function callStatus(answers,questions){
+const score=Math.min(100,answers.reduce((sum,a,i)=>{
+ const idx=typeof a.questionIndex==="number"?a.questionIndex:i;
+ const q=questions[idx];
+ return sum+(a.answer==="yes"&&q?q.weight:0);
+},0));
+return {score,alert:score>=50||answers.some((a,i)=>{const idx=typeof a.questionIndex==="number"?a.questionIndex:i;return a.answer==="yes"&&questions[idx]&&questions[idx].critical;}),complete:answers.length===questions.length};
+}
+function renderCallGuidance(root,answers,questions){
+ const sections=[];
+ answers.forEach((answer,i)=>{
+  const questionIdx=typeof answer.questionIndex==="number"?answer.questionIndex:i;
+  const question=questions[questionIdx];
+  if(!question) return;
+  const section=document.createElement("section"),heading=document.createElement("h3");
+  if(answer.answer==="yes"){
+   heading.textContent=question.text[lang];
+   const list=document.createElement("ul");
+   (question.guidance[lang]||[]).forEach(step=>{const item=document.createElement("li");item.textContent=step;list.append(item)});
+   section.append(heading,list);
+   if(root.id==="callAlertAdvice"&&question.scenarios){
+    const choices=document.createElement("div");choices.className="row";
+    question.scenarios.forEach(scenario=>{
+     const button=document.createElement("button");
+     button.textContent=scenario.label[lang];
+     const chosen=callScenarioMap[questionIdx]===scenario.id;
+     button.setAttribute("aria-pressed",String(chosen));
+     button.onclick=()=>{callScenarioMap[questionIdx]=scenario.id;renderCall();};
+     choices.append(button);
+    });
+    section.append(choices);
+    const selected=question.scenarios.find(scenario=>scenario.id===callScenarioMap[questionIdx]);
+    if(selected){
+     const steps=document.createElement("ol");
+     selected.steps[lang].forEach(step=>{const item=document.createElement("li");item.textContent=step;steps.append(item)});
+     section.append(steps);
+    }
+   }
+  }
+  if(section.childNodes.length)sections.push(section);
+ });
+ root.replaceChildren(...sections);
+}
+function renderCallOtherResponse(){
+ const response=callOtherResponse;
+ if(!response)return;
+ const question=callQuestions[response.questionIndex];
+ $("callOtherNote").textContent=response.detail;
+ $("callOtherSteps").replaceChildren(...(question?.guidance?.[lang]||[]).map(step=>{
+  const item=document.createElement("li");item.textContent=step;return item;
+ }));
+ const scenarios=question?.scenarios||[];
+ $("callOtherScenarioWrap").classList.toggle("hide",!scenarios.length);
+ $("callOtherScenarioChoices").replaceChildren(...scenarios.map(scenario=>{
+  const button=document.createElement("button");
+  button.textContent=scenario.label[lang];
+  button.setAttribute("aria-pressed",String(callScenarioMap[response.questionIndex]===scenario.id));
+  button.onclick=()=>{callScenarioMap[response.questionIndex]=scenario.id;renderCall()};
+  return button;
+ }));
+ const selected=scenarios.find(scenario=>scenario.id===callScenarioMap[response.questionIndex]);
+ $("callOtherScenarioSteps").replaceChildren(...(selected?.steps?.[lang]||[]).map(step=>{
+  const item=document.createElement("li");item.textContent=step;return item;
+ }));
+}
+function markPaidBranches(branches=["money","creds"]){
+document.querySelectorAll('input[type=checkbox][value]').forEach(c=>c.checked=branches.includes(c.value));
+}
+function renderCall(){
+if(!callQuestions.length)return;
+const state=callStatus(callAnswers,callQuestions);
+const wasAlerted=callAlerted;
+if(state.alert)callAlerted=true;
+const showingOtherResponse=Boolean(callOtherResponse)&&!callAlerted;
+$("callRisk").textContent=tt("callRisk")+": "+state.score+" / 100";
+$("callMeter").style.width=state.score+"%";
+$("callProgressbar").setAttribute("aria-valuenow",state.score);
+$("alertRiskText").textContent=tt("callRisk")+": "+state.score+" / 100";
+$("alertRiskMeter").style.width=state.score+"%";
+$("alertRiskBar").setAttribute("aria-label",tt("callRisk"));
+$("alertRiskBar").setAttribute("aria-valuenow",state.score);
+$("callAlert").classList.toggle("hide",!callAlerted);
+if(callAlerted&&!wasAlerted)$("callAlertAdvice").focus({preventScroll:true});
+$("callQuiz").classList.toggle("hide",callAlerted||(state.complete&&!showingOtherResponse));
+$("callCalm").classList.toggle("hide",callAlerted||!state.complete||showingOtherResponse);
+["callProgress","callQuestion","callProgressbar","callRisk","callChoices","callOtherForm","callAdvice"].forEach(id=>{
+ $(id).classList.toggle("hide",showingOtherResponse);
+});
+$("callOtherResponse").classList.toggle("hide",!showingOtherResponse);
+if(showingOtherResponse)renderCallOtherResponse();
+const lastYes=callAnswers.reduce((found,a,i)=>{const idx=typeof a.questionIndex==="number"?a.questionIndex:i;return a.answer==="yes"&&callQuestions[idx]&&callQuestions[idx].critical?idx:found;},-1);
+$("paid").textContent=tt("callPaid");
+$("paid").classList.toggle("hide",lastYes!==0);
+$("callCommonSteps").classList.toggle("hide",lastYes===1);
+$("callScript").classList.toggle("hide",lastYes===1);
+renderCallGuidance($("callAdvice"),callAnswers,callQuestions);
+renderCallGuidance($("callAlertAdvice"),callAnswers,callQuestions);
+renderCallGuidance($("callCalmAdvice"),callAnswers,callQuestions);
+const hasCurrentQuestion=!callAlerted&&!state.complete;
+$("callChoices").classList.toggle("hide",showingOtherResponse||!hasCurrentQuestion||callEnteringOther);
+$("callOtherForm").classList.toggle("hide",showingOtherResponse||!hasCurrentQuestion||!callEnteringOther);
+if(!callAlerted&&!state.complete){
+ const i=callAnswers.length,q=callQuestions[i];
+ $("callProgress").textContent=tt("callProgress").replace("{n}",i+1).replace("{total}",callQuestions.length);
+ $("callQuestion").textContent=q.text[lang];
+ $("callYes").textContent=tt("callYes");$("callNo").textContent=tt("callNo");$("callOther").textContent=tt("callOther");
+}
+}
+async function openCall(){
+try{
+ const r=await fetch("/api/callshield");
+ if(!r.ok)throw new Error(r.status);
+ const data=await r.json();callQuestions=data.questions;
+ callAnswers=[];callAlerted=false;callEnteringOther=false;callOtherResponse=null;callScenario=null;callScenarioMap={};callActive=true;
+ $("callPage").classList.remove("hide");renderCall();
+ $("callQuestion").focus({preventScroll:true});
+ $("callPage").scrollIntoView({behavior:"smooth",block:"start"});
+}catch(e){alert(tt("callError"))}
+}
+$("openCall").onclick=openCall;
+$("callBack").onclick=()=>{$("callPage").classList.add("hide");$("callAlert").classList.add("hide");callActive=false};
+$("callYes").onclick=()=>{callAnswers.push({answer:"yes",questionIndex:callAnswers.length});callEnteringOther=false;renderCall()};
+$("callNo").onclick=()=>{callAnswers.push({answer:"no",questionIndex:callAnswers.length});callEnteringOther=false;renderCall()};
+$("callOther").onclick=()=>{callEnteringOther=true;$("callOtherText").value="";$("callOtherContinue").disabled=true;renderCall();$("callOtherText").focus()};
+$("callOtherText").oninput=()=>{$("callOtherContinue").disabled=!$("callOtherText").value.trim()};
+$("callOtherContinue").onclick=()=>{
+ const detail=$("callOtherText").value.trim();
+ if(!detail)return;
+ const questionIndex=callAnswers.length;
+ callAnswers.push({answer:"other",questionIndex});
+ callOtherResponse={detail,questionIndex};callEnteringOther=false;renderCall();
+ $("callOtherResponse").focus({preventScroll:true});
+ $("callOtherResponse").scrollIntoView({behavior:"smooth",block:"center"});
+};
+$("callOtherNext").onclick=()=>{callOtherResponse=null;renderCall();if(callAnswers.length<callQuestions.length)$("callQuestion").focus({preventScroll:true})};
+$("callOtherBack").onclick=()=>{callEnteringOther=false;renderCall()};
+$("callAgain").onclick=()=>{callAnswers=[];callAlerted=false;callEnteringOther=false;callOtherResponse=null;callScenario=null;callScenarioMap={};renderCall()};
+$("callWarn").onclick=async()=>copyWarning(tt("callWarning"),$("callWarn"),"callWarn");
+$("saveContacts").onclick=saveContacts;
+$("clearContacts").onclick=clearContacts;
+$("paid").onclick=()=>{
+markPaidBranches(["money","creds"]);
+$("callAlert").classList.add("hide");$("callPage").classList.add("hide");callActive=false;
+$("mk").click();
+};
+$("mk").onclick=async()=>{
+ const br=[...document.querySelectorAll('input[type=checkbox][value]:checked')].map(c=>c.value);
+ if(!br.length)return alert(tt("pick"));
+ hidePause();
+ const d=await(await fetch("/api/plan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lang,branches:br,hour:$("hour").checked})})).json();
+ const names={now:d.urgent?"gnu":"gn",today:"gt",report:"gr"};
+ $("groups").replaceChildren(...Object.keys(names).filter(k=>d.groups[k].length).map(k=>{
+  const g=document.createElement("div");g.className="g "+k;const h=document.createElement("h3");h.textContent=tt(names[k]);
+  const ul=document.createElement("ul");fill(ul,d.groups[k]);g.append(h,ul);return g}));
+ renderContactActions();
+ const what=[["money","q1"],["creds","q2"],["link","q3"]].filter(x=>br.includes(x[0])).map(x=>tt(x[1])).join("; ");
+ $("notes").value=tt("f").map(f=>f+": ").join("\n")+"\n"+tt("what")+": "+what;
+ $("plan").classList.remove("hide");$("plan").scrollIntoView({behavior:"smooth"});
+};
+$("cp").onclick=async()=>{await navigator.clipboard.writeText($("notes").value);$("cp").textContent=tt("copied");setTimeout(()=>$("cp").textContent=tt("copy"),1500)};
+loadContacts();
+paint();
+</script></body></html>
